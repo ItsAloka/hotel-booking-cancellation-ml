@@ -1,0 +1,33 @@
+column,dtype,non_null,missing,missing_%,n_unique,example,meaning,role
+hotel,str,119390,0,0.0,2,Resort Hotel,Resort Hotel or City Hotel,feature
+is_canceled,int64,119390,0,0.0,2,0,"1 if the booking was cancelled or a no-show, else 0",target
+lead_time,int64,119390,0,0.0,479,342,days between the booking date and the arrival date,feature
+arrival_date_year,int64,119390,0,0.0,3,2015,year of the scheduled arrival,feature
+arrival_date_month,str,119390,0,0.0,12,July,month name of the scheduled arrival,feature
+arrival_date_week_number,int64,119390,0,0.0,53,27,ISO week number of the scheduled arrival,feature
+arrival_date_day_of_month,int64,119390,0,0.0,31,1,day of month of the scheduled arrival,feature
+stays_in_weekend_nights,int64,119390,0,0.0,17,0,nights booked on Sat/Sun,feature
+stays_in_week_nights,int64,119390,0,0.0,35,0,nights booked Mon-Fri,feature
+adults,int64,119390,0,0.0,14,2,number of adults on the booking,feature
+children,float64,119386,4,0.0,5,0.0,number of children on the booking,feature
+babies,int64,119390,0,0.0,5,0,number of babies on the booking,feature
+meal,str,119390,0,0.0,5,BB,"meal package (BB/HB/FB/SC; Undefined means SC, no meal)",feature
+country,str,118902,488,0.41,177,PRT,ISO country of origin of the guest,feature
+market_segment,str,119390,0,0.0,8,Direct,sales segment the booking came through,feature
+distribution_channel,str,119390,0,0.0,5,Direct,distribution channel the booking came through,feature
+is_repeated_guest,int64,119390,0,0.0,2,0,1 if the guest has stayed before,feature
+previous_cancellations,int64,119390,0,0.0,15,0,bookings this guest cancelled before this one,feature
+previous_bookings_not_canceled,int64,119390,0,0.0,73,0,bookings this guest honoured before this one,feature
+reserved_room_type,str,119390,0,0.0,10,C,room type the guest reserved (anonymised code),feature
+assigned_room_type,str,119390,0,0.0,12,C,room type actually given (set at or near check-in),post-booking
+booking_changes,int64,119390,0,0.0,21,3,number of amendments made after the booking,post-booking
+deposit_type,str,119390,0,0.0,3,No Deposit,No Deposit / Non Refund / Refundable,feature
+agent,float64,103050,16340,13.69,333,304.0,ID of the travel agency that made the booking,feature
+company,float64,6797,112593,94.31,352,110.0,ID of the company or entity that paid for the booking,feature
+days_in_waiting_list,int64,119390,0,0.0,128,0,days the booking sat on the waiting list,post-booking
+customer_type,str,119390,0,0.0,4,Transient,Transient / Transient-Party / Contract / Group,feature
+adr,float64,119390,0,0.0,8879,0.0,average daily rate = lodging revenue / total nights,feature
+required_car_parking_spaces,int64,119390,0,0.0,5,0,parking spaces requested,post-booking
+total_of_special_requests,int64,119390,0,0.0,6,0,number of special requests (e.g. high floor),feature
+reservation_status,str,119390,0,0.0,3,Check-Out,final status: Check-Out / Canceled / No-Show,leakage
+reservation_status_date,str,119390,0,0.0,926,2015-07-01,date that final status was set,leakage

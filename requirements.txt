@@ -1,0 +1,10 @@
+# IT3091 Machine Learning - Group 2026-AI-46
+# Pinned to the versions the shared foundation was built and frozen with.
+pandas==3.0.5
+numpy==2.4.6
+scikit-learn==1.9.0
+matplotlib==3.11.1
+seaborn==0.13.2
+jupyter==1.1.1
+# Gradient boosting (M4). Install before Week 4.
+xgboost==3.0.5
