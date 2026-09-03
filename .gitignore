@@ -1,0 +1,39 @@
+# --- Raw / large data: keep out of version control ---
+data/raw/*.csv
+data/raw/*.zip
+data/processed/
+*.parquet
+
+# Keep provenance + folder placeholders
+!data/raw/SOURCE.md
+!data/raw/.gitkeep
+
+# --- Course documents: contain third-party personal data (student IDs of
+#     the whole cohort) and university-owned handouts. Kept local only.
+#     If you want them in a PRIVATE repo, remove this line and `git add -f Docs/`.
+Docs/
+
+# --- DevTeam local coordination state ---
+.devteam/
+
+# --- Python ---
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+.venv/
+venv/
+env/
+.python-version
+
+# --- Notebooks: strip heavy outputs before committing where possible ---
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# DevTeam / AI coordination notes - local only
+knowledge/
