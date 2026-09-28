@@ -26,12 +26,12 @@ checked its work. Based on [project_record.md](project_record.md) §11.
 > **To complete before submission:** each member confirms the lines that apply to them and adds their name.
 > Do not leave a line in if it is not true.
 
-| Member | Name | What they did |
+| Member | Name (student ID) | What they did |
 | --- | --- | --- |
-| M1 (project lead) | `[NAME]` | Built the shared foundation (notebooks 01–02, EDA, cleaning, split) with AI help; reviewed and accepted every decision in the [decision log](decision_log.md); ran the notebooks and checked that outputs match the reports; Logistic Regression (03) |
-| M2 | `[NAME]` | Decision Tree (04): `[confirm what you did]` |
-| M3 | `[NAME]` | Random Forest (05): `[confirm what you did]` |
-| M4 | `[NAME]` | XGBoost (06): `[confirm what you did]` |
+| M1 (project lead) | Warnakulasinhage S.N.A (IT24101147) | Built the shared foundation (notebooks 01–02, EDA, cleaning, split) with AI help; reviewed and accepted every decision in the [decision log](decision_log.md); ran the notebooks and checked that outputs match the reports; Logistic Regression (03) |
+| M2 | Nawodya K.P.G.P (IT24102629) | Decision Tree (04): `[confirm what you did]` |
+| M3 | Fonseka W. P. L (IT24100509) | Random Forest (05): `[confirm what you did]` |
+| M4 | Seelarathna G.P.B (IT24101027) | XGBoost (06): `[confirm what you did]` |
 | All | | Initial submission (lens, task, workflow, roles); Neural Network (07), model selection (08), class weighting (09), ensemble (10): `[confirm who]`; final report, demo video, viva |
 
 The original plan gave M1 the shared foundation and Logistic Regression, M2 the Decision Tree, M3 Random Forest
@@ -70,7 +70,7 @@ each member can explain their own part without AI help.
 
 | Member | Name | Signature / date |
 | --- | --- | --- |
-| M1 | `[NAME]` | |
-| M2 | `[NAME]` | |
-| M3 | `[NAME]` | |
-| M4 | `[NAME]` | |
+| M1 | Warnakulasinhage S.N.A (IT24101147) | |
+| M2 | Nawodya K.P.G.P (IT24102629) | |
+| M3 | Fonseka W. P. L (IT24100509) | |
+| M4 | Seelarathna G.P.B (IT24101027) | |
