@@ -161,7 +161,7 @@ what I would do differently. This is marked individually, so it must be personal
 cancelled, or check it on random real bookings from the test set. Good for the video and the viva.
 
 ```
-.venv\Scripts\streamlit run apppp.py
+.venv\Scripts\streamlit run app/app.py
 ```
 
 Then open http://localhost:8501 in a browser.
