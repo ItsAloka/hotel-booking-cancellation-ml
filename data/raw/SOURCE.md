@@ -22,4 +22,4 @@ The original article identifies CC BY 4.0: https://pmc.ncbi.nlm.nih.gov/articles
 
 ## Timing and leakage
 
-Source extraction used change logs relative to pre-arrival time where available; it does not verify original booking-time snapshots. Outcome/status fields never enter model inputs. Read reports/foundation_v2/feature_availability.csv for per-field decisions and uncertainty. The raw file remains unchanged; all revised derivations are under data/processed/v2/.
+Source extraction used change logs relative to pre-arrival time where available; it does not verify original booking-time snapshots. Outcome/status fields never enter model inputs; see reports/project_record.md §2 for which columns were excluded and why. The raw file remains unchanged; all derived files are under data/processed/.

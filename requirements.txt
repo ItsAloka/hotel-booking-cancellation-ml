@@ -1,5 +1,5 @@
 # IT3091 Machine Learning - Group 2026-AI-46
-# Verified in the working environment for foundation v2 (2026-09-17).
+# Verified in the project .venv (2026-09-28).
 pandas==3.0.5
 numpy==2.4.6
 scipy==1.17.1
