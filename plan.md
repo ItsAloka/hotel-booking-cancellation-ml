@@ -36,12 +36,12 @@ All files go in `reports/`.
 
 | # | Task | File | Rubric criterion (marks) | Done? |
 | --- | --- | --- | --- | --- |
-| 1 | **Problem framing canvas** | `reports/problem_framing_canvas.md` | Business problem framing (5) | ☐ |
-| 2 | **Workflow diagram** | `reports/workflow_diagram.png` (+ source) | Workflow diagram and decision log (10) | ☐ |
-| 3a | **EDA insight log** | `reports/eda_insight_log.md` | Data understanding, EDA (10) | ☐ |
-| 3b | **Preprocessing / feature log** | `reports/preprocessing_feature_log.md` | Preprocessing and feature engineering (15) | ☐ |
-| 4 | **Recommendation + limitations** | `reports/recommendation.md` | Recommendation and stakeholder value (10) | ☐ |
-| 5 | **AI-use declaration** | `reports/ai_use_declaration.md` | Reproducibility and AI-use (10) | ☐ |
+| 1 | **Problem framing canvas** | `reports/problem_framing_canvas.md` | Business problem framing (5) | ☑ |
+| 2 | **Workflow diagram** | `reports/workflow_diagram.png` (+ source) | Workflow diagram and decision log (10) | ☑ |
+| 3a | **EDA insight log** | `reports/eda_insight_log.md` | Data understanding, EDA (10) | ☑ |
+| 3b | **Preprocessing / feature log** | `reports/preprocessing_feature_log.md` | Preprocessing and feature engineering (15) | ☑ |
+| 4 | **Recommendation + limitations** | `reports/recommendation.md` | Recommendation and stakeholder value (10) | ☑ |
+| 5 | **AI-use declaration** | `reports/ai_use_declaration.md` | Reproducibility and AI-use (10) | ☑ |
 
 ### 1. Problem framing canvas
 
