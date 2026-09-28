@@ -78,13 +78,15 @@ Uses only the saved OOF files; no model is refit.
      pooled AP on the **other 4 folds**. Record the chosen `w` per fold.
    - **E3 stacking:** `LogisticRegression` on `logit(p)` of XGB, RF, NN and DT, fitted on the other 4
      folds' OOF rows and scored on fold k.
-     *Caveat to state:* the OOF values of the other folds came from base models that trained on fold
-     k's rows. The leak is mild because no labels of fold k enter the meta-learner, but name it.
+     **Exploratory only, not adoptable.** The OOF values of the other 4 folds came from base models
+     that were trained on fold k's rows, so fold k's labels reach the meta-learner indirectly. This
+     breaks rule B3. Removing the leak would mean refitting the base models without fold k, which T2
+     does not do. Report E3's numbers, but it cannot replace XGBoost.
 3. **Compare with XGBoost** using rule 9.1: per-fold AP, mean ± SD, paired gain, folds better. Also
    report precision, recall and F1 at 0.5.
 4. **Outputs:** `reports/results/v2/ensemble.csv` (one row per option × fold plus mean/sd rows) and
    `reports/results/v2/oof/ensemble_<name>.csv` (same columns as the other OOF files) for each option.
-5. **Decision:** adopt an option as the final model only if it passes rule 9.1. Expected outcome from
+5. **Decision:** adopt E1 or E2 as the final model only if it passes rule 9.1 (E3 cannot be adopted). Expected outcome from
    the evidence: roughly +0.002–0.005, which fails, so **XGBoost stays**. Record this as further
    evidence of the information ceiling.
 6. Decision-log section "T2 ensemble"; commit.
@@ -101,9 +103,10 @@ by `row_id` to get `adr`, `total_nights`, `hotel` and so on.
 2. Cross-fitted **isotonic** and **Platt (sigmoid)** calibrators: fit on the other 4 folds' OOF and
    apply to fold k. Report Brier per fold for raw, isotonic and Platt, plus reliability diagrams.
    AP barely changes, because calibration is monotone. Check that too.
-3. Adopt a calibrator only if the Brier improvement is greater than the fold SD of raw Brier and holds
-   in ≥ 4/5 folds (rule 9.1 applied to Brier). Otherwise keep raw probabilities and state how well
-   calibrated they are.
+3. Adopt a calibrator only if the paired per-fold **reduction** `d_k = Brier_raw,k − Brier_cal,k`
+   has a mean greater than the fold SD of raw Brier (ddof=1) **and** `d_k > 0` in ≥ 4/5 folds
+   (rule 9.1 applied to Brier; lower Brier is better). Otherwise keep raw probabilities and state how
+   well calibrated they are.
 
 **Part 2: cost scenario.** The values are assumptions, and the notebook and decision log must say so.
 
@@ -122,7 +125,11 @@ by `row_id` to get `adr`, `total_nights`, `hotel` and so on.
   parameter to tune.
 - **R3 F1-optimal threshold:** reported for comparison only.
 - For each rule and fold, report total saving (€), saving per 1,000 bookings, % of bookings flagged,
-  precision, recall and F1. Compare R2 with R1 by the paired per-fold saving difference.
+  precision, recall and F1.
+- **Stop/go, R2 vs R1:** R1 is the reference. Let `g_k = S_R2,k − S_R1,k`, where S is the saving per
+  1,000 bookings on fold k, so fold size does not matter. R2 replaces R1 only if mean `g_k` > the fold
+  SD of `S_R1` (ddof=1) **and** `g_k > 0` in ≥ 4/5 folds. Otherwise R1 stays. In the sensitivity
+  table, use the same test against "flag nothing" (saving 0).
 
 Then:
 
