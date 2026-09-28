@@ -155,6 +155,17 @@ what I would do differently. This is marked individually, so it must be personal
 
 **Check the real submission deadline** (the old plan assumed 24 September, which has passed).
 
+## Demo app (check the model works)
+
+`app/app.py` is a small web app: fill in a booking and the saved model predicts whether it will be
+cancelled, or check it on random real bookings from the test set. Good for the video and the viva.
+
+```
+.venv\Scripts\streamlit run apppp.py
+```
+
+Then open http://localhost:8501 in a browser.
+
 ## How to run the notebooks
 
 Use the project `.venv` (it has xgboost). In VS Code / Jupyter pick the `.venv` interpreter or the
