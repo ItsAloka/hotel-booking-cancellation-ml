@@ -29,9 +29,9 @@ checked its work. Based on [project_record.md](project_record.md) §11.
 | Member | Name (student ID) | What they did |
 | --- | --- | --- |
 | M1 (project lead) | Warnakulasinhage S.N.A (IT24101147) | Built the shared foundation (notebooks 01–02, EDA, cleaning, split) with AI help; reviewed and accepted every decision in the [decision log](decision_log.md); ran the notebooks and checked that outputs match the reports; Logistic Regression (03) |
-| M2 | Nawodya K.P.G.P (IT24102629) | Decision Tree (04): `[confirm what you did]` |
-| M3 | Fonseka W. P. L (IT24100509) | Random Forest (05): `[confirm what you did]` |
-| M4 | Seelarathna G.P.B (IT24101027) | XGBoost (06): `[confirm what you did]` |
+| M2 | Nawodya K.P.G.P (IT24102629) | Area of responsibility: notebook 01 §2–5 (data quality, data dictionary), Decision Tree (04). Contribution: `[to be added]` |
+| M3 | Fonseka W. P. L (IT24100509) | Area of responsibility: notebook 01 §6–8.6 (class balance, leakage, booking drivers), Random Forest (05). Contribution: `[to be added]` |
+| M4 | Seelarathna G.P.B (IT24101027) | Area of responsibility: notebook 01 §8.7–11 (seasonality, country, price, feature engineering), XGBoost (06). Contribution: `[to be added]` |
 | All | | Initial submission (lens, task, workflow, roles); Neural Network (07), model selection (08), class weighting (09), ensemble (10): `[confirm who]`; final report, demo video, viva |
 
 The original plan gave M1 the shared foundation and Logistic Regression, M2 the Decision Tree, M3 Random Forest
