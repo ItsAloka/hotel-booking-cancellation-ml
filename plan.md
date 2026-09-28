@@ -275,7 +275,7 @@ Input: the final OOF probabilities (calibrated if adopted) and the frozen T3 rul
 | # | Task | Output | Status |
 | --- | --- | --- | --- |
 | T1 | Commit state | clean git | ☑ |
-| T2 | Ensemble | `v2/11`, `ensemble.csv` | ☐ |
+| T2 | Ensemble | `v2/11`, `ensemble.csv` | ☑ |
 | T3 | Calibration + cost threshold | `v2/12`, `threshold.json` | ☐ |
 | T4 | Subgroups | `v2/13`, `subgroups.csv` | ☐ |
 | T5 | Freeze + test pass | `frozen_model.json`, `v2/14`, `final_test.csv`, figures | ☐ |
