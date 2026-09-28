@@ -1,2 +1,2 @@
 model,nested_cv_pr_auc_mean,nested_cv_pr_auc_std,inner_cv_pr_auc,oof_pr_auc,oof_f1_at_0.5,threshold,oof_f1_at_threshold,best_params,nested_seconds,fit_seconds
-Random Forest,0.7548,0.0079,0.7532,0.7544,0.6314,0.3476,0.6955,"{""model__n_estimators"": ""400"", ""model__min_samples_leaf"": ""1"", ""model__max_depth"": ""20""}",1121.2674,362.9249
+Random Forest,0.7548,0.0079,0.7532,0.7544,0.6314,0.3476,0.6955,"{""model__n_estimators"": ""400"", ""model__min_samples_leaf"": ""1"", ""model__max_depth"": ""20""}",1193.9885,317.1032

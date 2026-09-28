@@ -1,2 +1,2 @@
 model,nested_cv_pr_auc_mean,nested_cv_pr_auc_std,inner_cv_pr_auc,oof_pr_auc,oof_f1_at_0.5,threshold,oof_f1_at_threshold,best_params,nested_seconds,fit_seconds
-Decision Tree,0.7079,0.0102,0.7064,0.7086,0.6302,0.3487,0.6605,"{""model__max_depth"": ""20"", ""model__min_samples_leaf"": ""100""}",23.892,5.1807
+Decision Tree,0.7079,0.0102,0.7064,0.7086,0.6302,0.3487,0.6605,"{""model__max_depth"": ""20"", ""model__min_samples_leaf"": ""100""}",22.499,4.7787

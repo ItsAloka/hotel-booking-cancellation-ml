@@ -1,0 +1,2 @@
+model,cv_pr_auc_mean,cv_pr_auc_std,xgboost_cv_pr_auc_mean,mean_gain_vs_xgboost,folds_better_than_xgboost,gain_beats_noise,threshold,test_pr_auc,test_roc_auc,test_f1,test_recall,test_precision,test_accuracy
+"Ensemble (RF + XGB + NN, soft voting)",0.7696,0.0078,0.766,0.0037,5,False,0.3373,0.7694,0.8926,0.7019,0.768,0.6463,0.819

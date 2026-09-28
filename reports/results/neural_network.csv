@@ -1,2 +1,2 @@
 model,nested_cv_pr_auc_mean,nested_cv_pr_auc_std,inner_cv_pr_auc,oof_pr_auc,oof_f1_at_0.5,threshold,oof_f1_at_threshold,best_params,nested_seconds,fit_seconds
-Neural Network,0.7426,0.0111,0.7431,0.745,0.6477,0.2988,0.6813,"{""model__hidden_layer_sizes"": ""(128, 64)"", ""model__alpha"": ""0.001""}",52.037,11.1669
+Neural Network,0.7426,0.0111,0.7431,0.745,0.6477,0.2988,0.6813,"{""model__hidden_layer_sizes"": ""(128, 64)"", ""model__alpha"": ""0.001""}",52.9632,13.7286
