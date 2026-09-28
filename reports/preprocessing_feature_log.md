@@ -30,9 +30,9 @@ it moves the score by more than that ±0.0071 "wobble" between folds.
 
 | Feature | How it is built | Kept? | Evidence |
 | --- | --- | --- | --- |
-| `total_nights` | weekend nights + week nights | **Kept** | Simple, readable length of stay; permutation importance 0.0062 (02 §5.2) |
+| `total_nights` | weekend nights + week nights | **Kept** | Simple, readable length of stay; permutation importance 0.008 (`feature_importance.csv`) |
 | `total_guests` | adults + children + babies | **Kept** | Party size in one number; also used to find zero-guest rows |
-| `is_family` | 1 if children > 0 or babies > 0 | **Kept** | Families cancel 34.2% vs 27.0% (01 §7). Adds almost nothing on top of the other columns (importance 0.0000–0.0001), but does no harm |
+| `is_family` | 1 if children > 0 or babies > 0 | **Kept** | Families cancel 34.2% vs 27.0% (01 §7). Adds almost nothing on top of the other columns (importance 0.0001, `feature_importance.csv`), but does no harm |
 | `room_changed` | reserved room ≠ assigned room | **Rejected** | Works (+0.0144, `ablation.csv` arm 5) but uses `assigned_room_type`, which is only known at check-in: a leak (01 §7.2) |
 
 ## Kaggle notebook features that did not help
