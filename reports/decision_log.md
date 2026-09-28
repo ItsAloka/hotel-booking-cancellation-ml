@@ -1,0 +1,64 @@
+# Decision log
+
+## 17 September 2026 — revised EDA, cleaning and preprocessing
+
+| Decision | Alternatives considered | Evidence / reason | Limitation |
+| --- | --- | --- | --- |
+| Historical snapshot claim | Initial-booking / day-before-arrival deployment claim | Source timing cannot verify original values or all outcome ordering | No live deployment claim |
+| Exclude ADR, deposits, requests in default | Retain conditional snapshot inputs | Conservative response to unverified timing | Other retained fields also may be amended |
+| Overnight population, >=1 guest | Keep administrative/day-use rows | Align scope with overnight room planning | 825 excluded records remain auditable |
+| Preserve duplicate records and group profiles | Deduplicate every matching row | No booking ID; avoid assuming records are redundant | True multiplicity unresolved; group keys not guest IDs |
+| Company presence flag | Drop company altogether / retain every ID | Source-backed business relationship, compact representation | Essentially no incremental fixed-tree AP |
+| Totals replacing components | Raw components / totals alongside all components | Interpretable units without exact sum redundancy | Raw components slightly better in fixed-tree checks; not performance optimisation |
+| Keep family/child-missing indicators as candidates | Add on univariate association alone | Tiny mixed / zero AP changes on training folds | Other estimators could behave differently |
+| Shared one-hot builder | Whole-frame frequency encoding | Fold-local fitted transforms and readable categories | Threshold 100 is pre-specified, not tuned optimum |
+| Five outer / three inner grouped folds | Ordinary stratification | No matching predictor profile across evaluation boundaries | Historical comparison only |
+| Versioned v2 outputs | Overwrite old processed/results files | Preserve provenance and make retraining needs explicit | Historical model notebooks require migration |
+
+Recorded result: 61 checks passed; 118,565 cleaned rows, 20 predictors. No test classifier score was used. See plan.md and the feature log for full-precision supporting CSVs and remaining work.
+
+## 21 September 2026 — v2 step 1: group-aware split
+
+Notebook: `notebooks/v2/02_preprocessing_v2.ipynb`. Output: `data/processed/v2/` (`train.csv`, `test.csv`, `manifest.json`).
+
+| Decision | Alternatives considered | Real-world reason | Limitation |
+| --- | --- | --- | --- |
+| v1 notebooks 02–09 moved to `notebooks/v1/`; 01 stays shared in `notebooks/` | Edit v1 in place | Notebook 02 changes in v2; keeping v1 intact lets anyone rerun the numbers already reported. Only relative paths were edited (`../` → `../../`) | v1 results remain historical, not comparable with v2 |
+| Keep the v1 population (duplicates removed, 84,969 rows) and the same 25 predictors | Restore duplicates; add features | Changing one thing at a time means any score change can be blamed on the split alone | Still a "unique profiles" population, not "all bookings" |
+| Group key = exact match on every predictor column (target excluded, `agent` as text) | Key on a subset of columns | Two bookings that look identical to the model are, for the model, the same booking; the target is left out so the grouping cannot see the answer | 313 profiles are shared by 626 rows; near-duplicates are not grouped |
+| `StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=42)`, fold 0 = test | Random `train_test_split`; `GroupShuffleSplit` | Like a hotel predicting next season's bookings, the test must hold bookings the model has never seen. 5 folds keeps v1's 80/20 size; stratifying keeps the 27.75% cancel rate on both sides; seed 42 as everywhere else | Fold 0 is fixed in advance, not chosen by score |
+| Result: train 67,974 / test 16,995 rows, cancel rate 0.2775 / 0.2775; profile overlap 93 (v1, recounted) → 0 (v2) | — | Removes the memorisation route that inflated v1 test scores | — |
+| Manifest with row counts, cancel rates, seed, group key and SHA-256 hashes | No manifest | A number the hotel acts on must be reproducible; the hashes prove the files were not changed. Rerun reproduced identical hashes | — |
+| Later v2 CV must group by the same profile inside training | Plain stratified CV | Same leak otherwise reappears between fitting and validation folds | To be done in the next v2 step |
+
+No test-set information was used for any decision; the test file was only written and hashed.
+
+## 21 September 2026 — v2 step 2: nested cross-validation folds
+
+Notebook: `notebooks/v2/03_cv_folds_v2.ipynb`. Output: `data/processed/v2/cv_folds.csv`; hash and settings added to `manifest.json`.
+
+| Decision | Alternatives considered | Real-world reason | Limitation |
+| --- | --- | --- | --- |
+| Group the folds by the same profile key as the split | Plain `StratifiedKFold` inside training | If a profile sits in both the fitting and validation part, the validation score rewards memory, and a model tuned on that score is picked for the wrong reason | Near-duplicate profiles are still not grouped |
+| 5 outer × 3 inner `StratifiedGroupKFold`, shuffle, seed 42 | Single 5-fold CV for both tuning and comparison | Tuning and scoring on the same folds flatters the tuned model. The inner folds choose settings; the outer fold, never seen during tuning, scores them, like a hotel judging a model on bookings it was not tuned on | 5 × 3 fits per setting is slower |
+| Save the folds to a file with a hash | Recreate folds in each model notebook | Every model is compared on exactly the same rows, and anyone can check the file was not changed | Notebook 02 rewrites the manifest, so 03 must run after it |
+| One row per training row: `row_id`, `outer_fold`, `inner_fold_0`–`inner_fold_4` | One `inner_fold` column | A row is fitted in 4 of the 5 outer folds, so it needs an inner fold for each of them | — |
+| Result: 0 shared profiles in all 5 outer and 15 inner pairs; cancellation rate 0.2774–0.2775 everywhere; rerun of 01 → 02 → 03 reproduced every hash | — | — | Fresh-environment install not tested |
+
+Fold creation read only `train.csv` (plus `manifest.json`, which it extends); neither the cleaned source table nor `test.csv` was opened.
+
+## 21 September 2026 — v2 step 3: retrain every model on the frozen contract (plan §9.3)
+
+Notebooks: `notebooks/v2/04_dummy_baseline` … `09_neural_network`, `10_model_selection`. Outputs: `reports/results/v2/<model>.csv` (one row per outer fold, then mean and SD rows), `reports/results/v2/oof/<model>.csv` (67,974 rows, `row_id`, `outer_fold`, `is_canceled`, `proba`), `leaderboard.csv`, `reference_selection.csv`.
+
+| Decision | Alternatives considered | Real-world reason | Limitation |
+| --- | --- | --- | --- |
+| Nested CV strictly from `cv_folds.csv`: tune on `inner_fold_k` inside outer fold k's fitting rows, score the untouched fold k; each notebook checks the manifest SHA-256 of `train.csv` and `cv_folds.csv` first | Re-draw folds with `StratifiedKFold` in each notebook (v1) | Every model is judged on exactly the same bookings, and no profile crosses a tuning or scoring boundary | 5 × 3 fits per setting; RF took ~30 min |
+| v1 grids and search types unchanged (LR/DT full grid; RF 6, XGB 10, NN 3 sampled with seed 42) | Widen grids | Changing one thing at a time: the new split, not new tuning, explains any score change | LR picked C = 10, the grid edge, in 3 of 5 folds; XGB picked the largest `n_estimators` (600) everywhere. Neither grid was widened (rule 9.1: no tuning chase without evidence) |
+| Out-of-fold probabilities = each outer fold scored by the model tuned without it | Refit one final model and `cross_val_predict` it (v1) | The v1 route reused settings chosen on all rows, so its OOF scores had seen the answer; stages 9.4–9.6 need honest OOF probabilities | — |
+| Precision / recall / F1 on the cancelled class at a 0.5 threshold | Tuned F1 threshold | The threshold is a business choice made on cost in §9.4, not here | Dummy has 0 precision/recall at 0.5 by construction |
+| SD reported with ddof = 1 (sample SD over 5 folds) | ddof = 0 (v1 `np.std`) | Rule 9.1's noise bar should not understate the spread from only 5 folds | Not directly comparable with v1 SDs |
+| Fit time = tuning + refit (`search_seconds`, parallel over candidates, machine-dependent); `refit_seconds` = one refit; `predict_seconds` = scoring one outer fold | Single timing | The refit time is what a hotel would pay to retrain | Timed on one 20-core laptop |
+| **Reference model: XGBoost**, AP 0.7644 ± 0.0080 | Random Forest 0.7552 ± 0.0082 (tie-break to simpler) | Rule 9.1 walked LR → DT → RF → XGB → NN. XGB beat RF by +0.0092 against a 0.0082 bar, 5/5 folds; about 30× faster to refit and higher F1 at 0.5 (0.674 vs 0.631). NN was −0.0207, 0/5 | The margin over RF is barely above the bar; §9.6 should treat RF as the natural ensemble partner, not as beaten decisively |
+
+Other results (AP mean ± SD): Dummy 0.2775, Logistic Regression 0.6410 ± 0.0091, Decision Tree 0.7067 ± 0.0069, Neural Network 0.7437 ± 0.0101. `test.csv` was not opened by any notebook.

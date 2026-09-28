@@ -1,0 +1,5 @@
+model,nested_cv_pr_auc_mean_none,nested_cv_pr_auc_std_none,oof_f1_at_0.5_none,threshold_none,oof_f1_at_threshold_none,weighting,nested_cv_pr_auc_mean_weighted,nested_cv_pr_auc_std_weighted,oof_f1_at_0.5_weighted,threshold_weighted,oof_f1_at_threshold_weighted,delta_ap,delta_f1_at_0.5,delta_f1_at_thr,beats_noise
+XGBoost,0.7612,0.009,0.6726,0.3352,0.6982,balanced,0.7604,0.0093,0.6957,0.4941,0.6963,-0.0008,0.0231,-0.0019,False
+Neural Network,0.7426,0.0111,0.6477,0.2988,0.6813,balanced (by replication),0.739,0.0119,0.6711,0.5849,0.6747,-0.0036,0.0234,-0.0066,False
+Decision Tree,0.7079,0.0102,0.6302,0.3487,0.6605,balanced,0.7026,0.0077,0.6543,0.58,0.6598,-0.0053,0.0241,-0.0007,False
+Logistic Regression,0.647,0.0095,0.5412,0.3033,0.6269,balanced,0.637,0.0088,0.6242,0.5293,0.6283,-0.01,0.083,0.0014,False

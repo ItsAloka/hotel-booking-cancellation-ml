@@ -1,0 +1,2 @@
+model,nested_cv_pr_auc_mean,nested_cv_pr_auc_std,inner_cv_pr_auc,oof_pr_auc,oof_f1_at_0.5,threshold,oof_f1_at_threshold,best_params,nested_seconds,fit_seconds
+Logistic Regression,0.647,0.0095,0.6464,0.6466,0.5412,0.3033,0.6269,"{""model__C"": ""1""}",15.2871,3.0203

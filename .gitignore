@@ -2,6 +2,7 @@
 data/raw/*.csv
 data/raw/*.zip
 data/processed/
+archive/
 *.parquet
 
 # Keep provenance + folder placeholders

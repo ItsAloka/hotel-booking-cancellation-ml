@@ -1,36 +1,25 @@
-# Dataset source and fingerprint
+# Dataset source and exact local version
 
 | Field | Value |
 | --- | --- |
 | Dataset | Hotel Booking Demand |
-| File | `data/raw/hotel_bookings.csv` |
-| Source URL | https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-02-11/hotels.csv |
-| Mirror of | TidyTuesday 2020-02-11 "Hotel bookings" (originally cleaned by Thomas Mock & Antoine Bichat) |
-| Download date | 2026-09-03 |
-| Size (bytes) | 16,855,599 |
-| SHA-256 | `7c2ae42a7353905ea136e5c2287f17c92c5435826598bfbb8491c6f0c7b1fc06` |
-| Rows (excl. header) | 119,390 |
-| Columns | 32 |
-| Target column | `is_canceled` (values {0, 1}; overall cancellation rate 37.04%) |
-| Hotels | Resort Hotel, City Hotel |
-| Arrival years | 2015, 2016, 2017 |
-| Licence | CC0 1.0 (public domain) |
+| Kaggle listing | https://www.kaggle.com/datasets/jessemostipak/hotel-booking-demand |
+| Actual downloaded source | https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-02-11/hotels.csv |
+| Local file | data/raw/hotel_bookings.csv |
+| Recorded original download | 2026-09-03 |
+| Provenance reviewed | 2026-09-17 |
+| Size | 16,855,599 bytes |
+| Shape | 119,390 rows; 32 columns |
+| SHA-256 | 7c2ae42a7353905ea136e5c2287f17c92c5435826598bfbb8491c6f0c7b1fc06 |
 
-## Academic citation
+Antonio, N., de Almeida, A., & Nunes, L. (2019). *Hotel booking demand datasets.* Data in Brief, 22, 41–49. https://doi.org/10.1016/j.dib.2018.11.126
 
-Antonio, N., de Almeida, A., & Nunes, L. (2019). *Hotel booking demand datasets.*
-Data in Brief, 22, 41–49. https://doi.org/10.1016/j.dib.2018.11.126
+The TidyTuesday dictionary/combining script is at https://github.com/rfordatascience/tidytuesday/tree/master/data/2020/2020-02-11 . It combines the study's two hotel tables and adds the hotel category. Kaggle was located as the requested dataset listing; the local bytes were not downloaded from or compared against Kaggle during this revision.
 
-## Verifying the fingerprint
+## Licence and access
 
-```bash
-sha256sum data/raw/hotel_bookings.csv
-# expected: 7c2ae42a7353905ea136e5c2287f17c92c5435826598bfbb8491c6f0c7b1fc06
-```
+The original article identifies CC BY 4.0: https://pmc.ncbi.nlm.nih.gov/articles/PMC6297060/ . This is the article's licence; it should not automatically be substituted for every mirror's dataset licence. The earlier local record asserted CC0, but the exact current Kaggle/mirror data licence was not independently verified in this revision. Preserve attribution and review the download provider's terms before redistribution. The raw CSV remains outside version control.
 
-## Leakage note
+## Timing and leakage
 
-`reservation_status` (Check-Out / Canceled / No-Show) and `reservation_status_date`
-are recorded at or after the booking outcome and MUST NOT be used as model features.
-See `knowledge/` vault note "Hotel Booking Demand: reservation_status and
-reservation_status_date leak the target".
+Source extraction used change logs relative to pre-arrival time where available; it does not verify original booking-time snapshots. Outcome/status fields never enter model inputs. Read reports/foundation_v2/feature_availability.csv for per-field decisions and uncertainty. The raw file remains unchanged; all revised derivations are under data/processed/v2/.

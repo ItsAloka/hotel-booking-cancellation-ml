@@ -1,0 +1,5 @@
+candidate,against,mean_paired_gain,reference_sd,folds_positive,adopted
+decision_tree,logistic_regression,0.06568545282471631,0.009091131261428066,5,True
+random_forest,decision_tree,0.04852367238289279,0.0069300514804940035,5,True
+xgboost,random_forest,0.00917657437990398,0.008170559767317311,5,True
+neural_network,xgboost,-0.02066993876122585,0.007969271944068483,0,False

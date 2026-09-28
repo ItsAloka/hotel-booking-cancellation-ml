@@ -1,0 +1,26 @@
+feature,ap_drop_mean,ap_drop_std,folds_positive,verdict
+country,0.1731,0.00649,5,load-bearing
+lead_time,0.13679,0.00194,5,load-bearing
+agent,0.12847,0.00474,5,load-bearing
+total_of_special_requests,0.10659,0.00729,5,load-bearing
+market_segment,0.07189,0.00456,5,load-bearing
+previous_cancellations,0.06576,0.00608,5,load-bearing
+customer_type,0.04666,0.00105,5,load-bearing
+deposit_type,0.04113,0.005,5,load-bearing
+adr,0.02909,0.00131,5,load-bearing
+previous_bookings_not_canceled,0.02291,0.00247,5,load-bearing
+arrival_date_month,0.01845,0.00146,5,load-bearing
+total_nights,0.008,0.00125,5,load-bearing
+stays_in_week_nights,0.00475,0.0017,5,minor
+arrival_date_day_of_month,0.00448,0.00201,5,minor
+hotel,0.00422,0.00068,5,minor
+meal,0.00414,0.00085,5,minor
+reserved_room_type,0.00395,0.00108,5,minor
+distribution_channel,0.00282,0.00075,5,minor
+stays_in_weekend_nights,0.00221,0.00095,5,minor
+total_guests,0.00159,0.00077,5,minor
+children,0.00132,0.00091,5,minor
+is_repeated_guest,0.00123,0.00065,5,minor
+adults,0.00079,0.00025,5,minor
+is_family,0.0001,0.00016,3,question it
+babies,7e-05,9e-05,4,question it

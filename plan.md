@@ -1,300 +1,302 @@
-# IT3091 Machine Learning Group Assignment - Initial Plan
+# IT3091 ML — finishing plan (28 September 2026)
 
-## 1. Project overview and group identity
+**Group 2026-AI-46 · Guided Data Track, code 6 (Hotel Booking Demand) · primary lens: cancellation risk.**
 
-- **Module:** IT3091 Machine Learning
-- **Group:** 2026-AI-46
-- **Lab group:** Y3.S1.WD.AI.0101
-- **Track:** Guided Data Track
+This is the working to-do list for a fresh session. History, numbers and past decisions are in
+[`reports/project_record.md`](reports/project_record.md). Read it first. Also read
+[`reports/decision_log.md`](reports/decision_log.md) and
+[`reports/training_foundation.md`](reports/training_foundation.md).
 
-This plan is the group's Initial Submission. Member names must be confirmed before submission (see section 15).
+- **Today (28 Sept):** tasks T1–T9. That covers the models, evaluation and supporting documents.
+- **Tomorrow (29 Sept):** final report, 3-minute video, personal learning reports (section C).
+- **Check the real deadline.** The old plan assumed 24 September, which has passed.
 
-### How the work is split
+---
 
-The project runs in three phases so that the model comparison stays valid:
+## A. Where we are (start state)
 
-1. **Shared foundation - built once, by the project lead.** Data acquisition, EDA, cleaning, feature engineering and the preprocessing pipeline are built **once** and then frozen: a fixed seeded train/test split, the prepared feature matrix, the cross-validation fold definition and the metric set. Nothing in this foundation changes after it is locked.
-2. **One model per member (parallel).** Each member loads the *same* frozen split and pipeline and owns one model end to end: hyperparameter tuning inside the shared CV folds, metrics, calibration, feature importance, error analysis and that model's write-up.
-3. **Comparison and recommendation.** The per-model results are assembled into one comparison table (valid because every model saw identical data), the recommended model is chosen, and the recommendation, limitations and reproducibility check are completed.
-
-**Change of plan, 2026-09-03.** Phase 1 was originally written as a whole-team artefact signed off by all four members. In practice the project lead is building the entire shared foundation alone - data acquisition, EDA, data quality, leakage analysis, cleaning, feature engineering, the pipeline, the split, the CV folds and the metric harness - because the schedule was compressed from seven weeks to three (section 13) and waiting on group sign-off at each step is not affordable. Every decision is still written down with the evidence behind it in `reports/eda_insight_log.md` and the decision log, so the group can **review** the foundation rather than re-derive it. This is recorded here rather than left implicit, because section 11 commits us to an honest statement of who did what.
-
-### Member responsibilities
-
-| Member | Responsibility | Model owned |
-| --- | --- | --- |
-| M1 (project lead) | **The entire shared foundation**: dataset acquisition and fingerprint, data dictionary, EDA and insight log, data-quality and leakage reasoning, cleaning, feature engineering, the `Pipeline`/`ColumnTransformer`, the split, the CV protocol and the metric harness. Plus coordination: workflow diagram, decision log, final comparison table, report assembly, video | Logistic Regression (baseline) |
-| M2 | One model end to end on the frozen foundation, plus that model's report subsection | Decision Tree |
-| M3 | One model end to end on the frozen foundation, plus that model's report subsection | Random Forest |
-| M4 | One model end to end on the frozen foundation, plus that model's report subsection | Gradient Boosting (XGBoost) |
-
-Names for M1-M4 are TODO and must be confirmed before the Initial Submission.
-
-**Contingency.** If a member has not delivered their model by the end of Week 2 (section 13), the lead runs that model from the frozen foundation instead. This is cheap by design: once the pipeline, the folds and the metric harness exist, adding a model is a small and mechanical amount of code, which is exactly why the foundation is built first. If this happens, the report's contribution statement must say so plainly - claiming work that was not done is a worse outcome than an uneven contribution table. The optional k-NN model is dropped first if time is short (see the cut list in section 13).
-
-## 2. Track and decision lens
-
-Group 2026-AI-46 maps to code **6** (the final digit of its group number). The Guided Data Track assigns code 6 to **Tourism & Hospitality**, using the **Hotel Booking Demand** dataset. We will use this controlled track because it directly fits the assignment descriptor and does not require prior Industry Explorer approval.
-
-Our primary lens is **cancellation risk**: predicting whether a booking will be cancelled. This is a coherent, actionable decision problem for a hotel chain seeking better booking reliability, revenue planning and customer management. A secondary segmentation analysis is optional only: it may profile high-risk booking groups after the prediction work, and will be retained only if it makes the recommendation clearer.
-
-## 3. Problem-framing canvas
-
-| Element | Decision |
+| Item | State |
 | --- | --- |
-| Stakeholder | Revenue and operations manager of a hotel chain |
-| Decision need | Set appropriate deposit, overbooking and re-confirmation actions before arrival |
-| Unit of analysis | One hotel booking |
-| ML task | Supervised binary classification |
-| Target | `is_canceled` (1 = cancelled, 0 = not cancelled) |
-| Output | Cancellation probability, classification at a documented operating threshold, and key drivers |
-| Value | Better demand forecasts, reduced empty-room losses and targeted customer outreach |
+| Data contract v2 | `data/processed/v2/` has `train.csv` (67,974), `test.csv` (16,995), `cv_folds.csv` and `manifest.json` with SHA-256 hashes. Split is group-aware: 0 shared profiles |
+| Models | Dummy, LR, DT, RF, XGBoost, NN: nested CV (5 outer × 3 inner) in `notebooks/v2/04`–`09`; compared in `v2/10` |
+| Reference model | **XGBoost** AP **0.7644 ± 0.0080** (600 rounds, depth 10, lr 0.05). RF 0.7552 ± 0.0082 |
+| Out-of-fold probabilities | `reports/results/v2/oof/<model>.csv`, columns `row_id, outer_fold, is_canceled, proba`. `row_id` = 0-based row of `train.csv` |
+| `test.csv` | **Never opened by any model.** It stays closed until T5 |
+| Git | Nothing committed since 21 Sept (v2, scripts, logs, results all untracked) |
 
-The model will support rather than automate decisions. Managers should use a risk score alongside capacity, policy and customer-service constraints.
+Rubric coverage today is about 63/100. Missing: ensemble, calibration, cost threshold, subgroups,
+test pass, recommendation, diagram, canvas, data dictionary, AI-use declaration, reproducibility proof.
 
-## 4. Data understanding and EDA plan
+## B. Ground rules (apply to every task)
 
-The Hotel Booking Demand dataset (Antonio, Almeida and Nunes, 2019) contains about 119,390 bookings from City Hotel and Resort Hotel, with 32 columns. We will document the source URL, licence or access terms, download date and SHA-256 fingerprint of the exact CSV used.
+1. **Test set:** `data/processed/v2/test.csv` is read in **T5 only**, **once**, after the frozen
+   decision is committed. No other notebook or script may read it.
+2. **Stop/go rule 9.1** (`project_record.md` §9.1): a change replaces the reference only if its mean
+   **paired** per-fold gain is greater than **0.0080** (XGBoost outer-fold SD, ddof=1) **and** it is
+   positive in **≥ 4 of 5** outer folds. For cost, the gain in expected saving must be larger than the
+   fold SD of saving. A failed check is still a result: record it with its number.
+3. **Nothing is chosen on the fold it is scored on.** Every weight, calibrator and threshold is fitted
+   on the other 4 outer folds' OOF rows and then applied to fold k ("cross-fitting").
+4. **Every notebook starts by checking the manifest hashes** of `train.csv` and `cv_folds.csv`, the
+   same way `v2/04`–`v2/10` do.
+5. **Notebook style:** write it like a Kaggle kernel. Load the data first, one step per cell, and put
+   a short markdown reading after every table or chart. No big config block at the top. Seed 42 everywhere.
+6. **Do not reopen** feature engineering, SMOTE or undersampling, class weighting, or wider grids. The
+   evidence is in `project_record.md` §5, §6 and §9.
+7. **Logs:** every decision goes into `reports/decision_log.md` as a row: decision | alternatives |
+   evidence/reason | limitation. Add a dated section per task.
+8. Commit after each task (`git add` + commit, with the message naming the task).
 
-Five published Kaggle notebooks on this same dataset were read on 2026-09-03 as a structural benchmark for this stage; they are listed, with what we took and what we rejected, in section 16.
+---
 
-Before modelling, we will produce a data dictionary and inspect:
+## C. Today's tasks, in order
 
-- row meaning, variable types, unique values and distributions;
-- cancellation rate overall and by hotel type, market segment, lead time and deposit type;
-- missingness, including the few missing `children` values, missing `country`, and heavily missing ID-like `agent` and `company` fields;
-- invalid or implausible rows, including zero guests (`adults + children + babies = 0`), anomalous meal values and extreme `adr` values;
-- duplicates and the relationship between features and the target.
+### T1. Commit the current state (10 min)
 
-## 5. Leakage controls
+- `git status`: check that `data/processed/`, `Docs/` and `.devteam/` stay ignored (they are, in `.gitignore`).
+- Stage: `notebooks/` (01, v1/, v2/), `reports/` (all logs, `results/`, `results/v2/`,
+  `project_record.md`), `scripts/`, `plan.md`, `requirements.txt`, `.gitignore`, `data/README.md`,
+  `data/raw/SOURCE.md`. The deletions of the old `notebooks/01_eda_and_cleaning.ipynb`,
+  `02_pipeline_and_split.ipynb` and `reports/feature_roles.csv` are intended.
+- `reports/data_dictionary.csv` shows as deleted. **Do not commit that deletion.** Restore it with
+  `git checkout -- reports/data_dictionary.csv`; it is rebuilt in T6.
+- Commit: `v2 foundation: group-aware split, nested-CV retrain of six models, project record`.
+- **Done when:** `git status` is clean apart from ignored files.
 
-The following outcome-revealing columns will **never** be model features:
+### T2. Ensemble — `notebooks/v2/11_ensemble.ipynb` (≈1 h)
 
-- `reservation_status`
-- `reservation_status_date`
+Uses only the saved OOF files; no model is refit.
 
-Both are determined at or after the final reservation outcome and would make validation misleading. We will also document a conservative “prediction-time” feature set. `assigned_room_type`, `booking_changes`, `days_in_waiting_list` and `required_car_parking_spaces` may reflect information that arrives after initial booking; they will be excluded from the main model unless their availability at the intended decision time is verified. If useful, they can be evaluated separately as a clearly labelled later-stage sensitivity analysis.
+1. **Diagnose.** Load the OOF files for XGB, RF, NN and DT and join them on `row_id`. Report the
+   correlation of the probabilities, the correlation of the residuals (`is_canceled − proba`) for
+   XGB vs RF and XGB vs NN, and the disagreement rate at 0.5. Residual correlation above about 0.9
+   means little complementary signal. Say so, but still run the three options below, because the
+   plan requires the ensemble to be reported.
+2. **Options** (per outer fold k, score on fold k):
+   - **E1 simple average:** `(p_xgb + p_rf) / 2`.
+   - **E2 weighted average:** `w·p_xgb + (1−w)·p_rf`, with `w ∈ {0.3, 0.4, 0.5, 0.6, 0.7}` chosen by
+     pooled AP on the **other 4 folds**. Record the chosen `w` per fold.
+   - **E3 stacking:** `LogisticRegression` on `logit(p)` of XGB, RF, NN and DT, fitted on the other 4
+     folds' OOF rows and scored on fold k.
+     *Caveat to state:* the OOF values of the other folds came from base models that trained on fold
+     k's rows. The leak is mild because no labels of fold k enter the meta-learner, but name it.
+3. **Compare with XGBoost** using rule 9.1: per-fold AP, mean ± SD, paired gain, folds better. Also
+   report precision, recall and F1 at 0.5.
+4. **Outputs:** `reports/results/v2/ensemble.csv` (one row per option × fold plus mean/sd rows) and
+   `reports/results/v2/oof/ensemble_<name>.csv` (same columns as the other OOF files) for each option.
+5. **Decision:** adopt an option as the final model only if it passes rule 9.1. Expected outcome from
+   the evidence: roughly +0.002–0.005, which fails, so **XGBoost stays**. Record this as further
+   evidence of the information ceiling.
+6. Decision-log section "T2 ensemble"; commit.
+- **Done when:** the table exists, a final model is named, and the log row is written.
 
-`required_car_parking_spaces` was added to that list in Week 2 on EDA evidence: none of the 7,416 bookings that request parking was ever cancelled, a perfect separation that indicates the field is populated at check-in rather than at booking. The engineered `room_changed` flag (reserved room ≠ assigned room) was added for the same reason: a room is only re-assigned to a guest who actually arrived. Both findings, with the crosstabs behind them, are in `reports/eda_insight_log.md` (findings L2 and L3) and in the decision log entry of 2026-09-03.
+### T3. Calibration and cost-based threshold — `notebooks/v2/12_calibration_threshold.ipynb` (≈1.5 h)
 
-All imputation, encoding, scaling, outlier treatment and feature selection will be fitted within training folds only, using a scikit-learn `Pipeline` and `ColumnTransformer`.
+Input: the OOF of the final model from T2 (XGBoost unless T2 said otherwise), joined to `train.csv`
+by `row_id` to get `adr`, `total_nights`, `hotel` and so on.
 
-## 6. Preprocessing and feature engineering
+**Part 1: calibration**
 
-This pipeline is built once by the whole team (M3 leads) and then **frozen** as the shared foundation described in section 1: every model in section 7 is trained and compared on the identical output of this pipeline, the same seeded train/test split and the same cross-validation folds.
+1. Brier score (per fold and pooled) and a reliability diagram (10 quantile bins) for raw XGBoost.
+2. Cross-fitted **isotonic** and **Platt (sigmoid)** calibrators: fit on the other 4 folds' OOF and
+   apply to fold k. Report Brier per fold for raw, isotonic and Platt, plus reliability diagrams.
+   AP barely changes, because calibration is monotone. Check that too.
+3. Adopt a calibrator only if the Brier improvement is greater than the fold SD of raw Brier and holds
+   in ≥ 4/5 folds (rule 9.1 applied to Brier). Otherwise keep raw probabilities and state how well
+   calibrated they are.
 
-| Issue | Planned treatment |
-| --- | --- |
-| Missing values | **Settled in Week 2 on EDA evidence.** `company` (94.3% missing) becomes the `booked_by_company` flag and the ID is dropped; `agent` (13.7% missing) becomes `booked_with_agent` plus an explicit `"0"` category; `country` (0.41%) gets an explicit `Unknown` category rather than mode-filling; `children` (4 rows) is filled with 0. No column needs median imputation, so none is applied |
-| Outliers | **Settled in Week 2.** Only two demonstrable errors removed (`adr = -6.38` and a single `adr = 5400` against a next-highest 510). No blanket IQR removal — long lead times are real and carry the strongest signal. Heavy tails handled by scaling for the linear model only |
-| Duplicates | **Settled in Week 2.** 31,994 rows are identical on all 32 columns, 32,252 once the leakage columns are dropped. Removed as the last cleaning step, because with no booking ID they let a classifier memorise across the train/test split. Documented cost: the measured cancellation rate falls from 37.0% to 27.3% |
-| Categorical variables | One-hot encode low-cardinality fields; compare a leakage-safe encoded approach for high-cardinality `country` only when justified |
-| Scaling | Scale numeric columns for Logistic Regression and any distance-based model; tree models use unscaled compatible inputs |
-| Class balance | The positive class is 37.0% on the raw data (business baseline) and **27.3% after deduplication** (modelling baseline). Still mild, so stratification, class weights and threshold tuning; do not apply SMOTE by default |
+**Part 2: cost scenario.** The values are assumptions, and the notebook and decision log must say so.
 
-Candidate engineered features include total guests, total special requests, lead-time bands, booking-date seasonality and the difference between reserved and assigned room types only in the later-stage sensitivity analysis.
+- Room value at stake: `V = adr × total_nights` (euros). Day-use rows have V = 0.
+- Flagging a booking triggers a contact action (reminder, deposit or confirmation request) that costs
+  **c** per booking.
+- If a flagged booking really cancels, the hotel recovers a fraction **r** of V (earlier resale or
+  controlled overbooking).
+- Net saving of flagging booking *i* = `r·V_i·y_i − c`. Not flagging = 0.
+- Base case: **c = €5, r = 0.25**. Sensitivity grid: c ∈ {2, 5, 10, 20} × r ∈ {0.10, 0.25, 0.50}.
 
-## 7. Model and data-mining strategy
+**Part 3: decision rules** (cross-fitted: choose on 4 folds, evaluate on fold k)
 
-We will first establish a simple, reproducible baseline and then compare at least three alternatives using the same split and cross-validation protocol. Each model is **owned by one member** (see section 1) and trained on the frozen shared foundation from section 6, so every model is judged on identical data, identical folds and identical metrics.
+- **R1 global threshold:** flag if `p ≥ t`, with t on a 0.05–0.95 grid chosen to maximise saving.
+- **R2 value-aware rule:** flag if `p·r·V ≥ c`. This needs calibrated probabilities and has no
+  parameter to tune.
+- **R3 F1-optimal threshold:** reported for comparison only.
+- For each rule and fold, report total saving (€), saving per 1,000 bookings, % of bookings flagged,
+  precision, recall and F1. Compare R2 with R1 by the paired per-fold saving difference.
 
-| Model | Role and justification |
-| --- | --- |
-| Logistic Regression | Interpretable baseline; produces probabilities and tests whether linear effects are sufficient |
-| Decision Tree | Transparent non-linear benchmark, but likely prone to overfitting without pruning |
-| Random Forest | Captures interactions and non-linearities robustly; provides feature-importance evidence |
-| Gradient Boosting (XGBoost or LightGBM, subject to environment approval) | Strong tabular-data candidate; tune carefully and compare its added complexity against benefit |
-| Optional k-NN | Include only if preprocessing and runtime make it a meaningful distance-based comparison |
+Then:
 
-Each model owner follows the same protocol: a small pre-specified hyperparameter search run **inside** the cross-validation folds, then a single fit on the full training set, then one scored pass on the held-out test set. Each owner produces their model's CV scores, confusion matrix, calibration curve, feature-importance or coefficient evidence and a short error analysis, and drafts that model's subsection of the comparison. M1 then assembles the combined comparison table. Model selection will balance predictive quality, calibration, interpretability, training cost and stakeholder usefulness rather than selecting solely by accuracy.
+4. **Sensitivity table:** the best rule's saving and threshold for every (c, r) cell. Check whether
+   the recommendation still holds across the grid, and mark the cells where flagging nothing is best.
+5. **Freeze:** calibrator (or none), rule, threshold, and base-case c and r. Write
+   `reports/results/v2/threshold.json` and `calibration.csv`, `cost_sensitivity.csv`, `decision_rules.csv`.
+6. Decision-log section "T3"; commit.
+- **Done when:** one rule and its parameters are frozen, with sensitivity evidence.
 
-## 8. Evaluation and validation
+### T4. Subgroup check — `notebooks/v2/13_subgroups.ipynb` (≈30 min)
 
-1. Hold out a stratified test set before model selection.
-2. Use stratified k-fold cross-validation on the remaining training data for tuning and comparison.
-3. Select an operating threshold using training/CV results and document the business trade-off before applying it once to the test set.
+Input: the final OOF probabilities (calibrated if adopted) and the frozen T3 rule, joined to `train.csv`.
 
-Primary measures will be **PR-AUC**, **F1** and recall for cancelled bookings at the selected threshold. Secondary measures are ROC-AUC, precision, calibration, confusion matrix and class-wise error analysis. We will explicitly compare the cost of a missed cancellation (potential empty room/poor forecast) against a false alarm (unnecessary outreach or restrictive policy). Accuracy will be reported but never used as the only success criterion.
+1. For each group of `hotel`, `distribution_channel`, `market_segment`, `customer_type`,
+   `deposit_type`, `is_repeated_guest`, report: support n, cancel rate, AP, precision, recall, % flagged,
+   and saving per booking.
+2. Flag any group whose recall is more than **0.10 below** the overall recall. Groups with **n < 500**
+   are "indicative only".
+3. `country`: the top 10 by volume only, with the caveat that it describes booking origin, not people.
+   Make no nationality claims. `country` is a model input, which is itself a fairness point to raise
+   in limitations.
+4. Output `reports/results/v2/subgroups.csv`. Add a decision-log section, commit.
+- **Done when:** the table exists and the weak groups are named in the log.
 
-## 9. Workflow and decision log
+### T5. Freeze, final fit, one test pass — `notebooks/v2/14_final_model_test.ipynb` (≈1 h)
 
-```mermaid
-flowchart LR
-    A[Business problem and stakeholder] --> B[Choose guided track and cancellation-risk lens]
-    B --> C[Data acquisition, dictionary and EDA]
-    C --> D[Define prediction-time features and remove leakage]
-    D --> E[Pipeline preprocessing and feature engineering]
-    E --> F[Freeze shared foundation: split, pipeline, CV folds, metrics]
-    F --> G[One model per member, trained on the frozen foundation]
-    G --> H[Combined comparison, threshold selection, held-out test]
-    H --> I[Recommendation, limitations and demo]
-```
+**Before any test read:**
 
-At every arrow, the team will keep a dated decision-log entry recording the options considered, evidence, chosen action and expected impact. EDA insights and preprocessing decisions will be recorded separately so the final report can trace recommendations back to evidence.
+1. Write `reports/results/v2/frozen_model.json` containing:
+   - final model and hyperparameters (XGBoost 600 / 10 / 0.05, `random_state=42`, the same pipeline
+     as `v2/08`: `OneHotEncoder(min_frequency=100, handle_unknown='infrequent_if_exist')`, no scaling)
+   - calibrator
+   - decision rule and threshold
+   - c and r
+   - the `train.csv` and `test.csv` hashes from the manifest
+2. **Commit `frozen_model.json` on its own first.** The commit timestamp proves the decision came
+   before the test set was opened.
 
-## 10. Planned recommendation and limitations
+**Then, in the notebook:**
 
-A useful final output will rank bookings by cancellation risk and explain broad, evidence-supported drivers. It could guide a re-confirmation campaign for high-risk bookings and inform deposit or overbooking policy, subject to manager approval and fairness review.
+3. Refit the final pipeline on all 67,974 training rows.
+   - If a calibrator was adopted, fit it on the pooled OOF probabilities from T3. State the small
+     mismatch: the OOF came from per-fold models, and the final model is a full refit.
+   - Time the refit.
+4. Check the hash of `test.csv`, then load it **once** and score it. Report:
+   - AP, ROC-AUC and Brier
+   - precision, recall, F1, accuracy and confusion matrix at the frozen rule
+   - saving under the base case and under the sensitivity grid
+   - the subgroup table from T4 repeated on test (hotel and channel at least)
+   - PR curve and reliability diagram
+5. Compare test AP with the nested-CV AP (0.7644 ± 0.0080). If test AP falls inside about ±2 SD,
+   the CV estimate held. Say whether it did either way, and do not retune.
+6. Save `reports/results/v2/final_test.csv` and `final_test_subgroups.csv`, plus figures under
+   `reports/figures/` (PR curve, reliability diagram, confusion matrix, cost sensitivity heatmap,
+   leaderboard bar chart with SD whiskers). The report and video will use these figures.
+7. Optional: save the model to `models/final_xgb.joblib` and add `models/` to `.gitignore`.
+8. Decision-log section "T5 frozen decision and single test pass"; commit.
+- **Done when:** test metrics are saved and the log says the test set was opened exactly once.
 
-Limitations to state honestly include historical data from two hotels (2015-2017), possible concept drift, limited information about price elasticity and customer intent, and the risk that operational variables are unavailable at the decision time. Predictions are not grounds for unfair treatment of individual customers.
+### T6. Data dictionary — `reports/data_dictionary.csv` (+ short `.md`) (≈30 min)
 
-## 11. Reproducibility and AI-use transparency
+- Start from the restored v1 CSV (columns: `column, dtype, non_null, missing, missing_%, n_unique,
+  example, meaning, role`).
+- Update it for the final contract:
+  - all 32 raw columns
+  - `role` ∈ {predictor, target, excluded-leakage, excluded-post-booking, excluded-other, engineered}
+  - a `reason` column for every exclusion
+  - the 3 engineered features (`total_nights`, `total_guests`, `is_family`) with formulas
+- Row meaning: **one row = one hotel booking (unique predictor profile after deduplication)**.
+- Add the dataset link, source DOI and the raw-file SHA-256 at the top of `reports/data_dictionary.md`.
 
-- Keep a **numbered, runnable notebook sequence** (`01_`, `02_`, `03_*`) with fixed random seeds and a documented execution order. Each notebook reads only files the previous one wrote, so the chain can be re-run from a clean clone. This replaces the earlier "one runnable notebook" wording, which does not survive four people working in parallel.
-- Record dataset source, version/download date and SHA-256 fingerprint.
-- Keep dependency versions in `requirements.txt`.
-- Store raw data outside version control when it is large or licensing requires it.
-- Declare AI assistance honestly, including what it helped draft or explain, and independently verify all analysis and citations.
-- Acknowledge the published notebooks consulted as a structural benchmark, and say which of our decisions deliberately depart from them (section 16).
-- State honestly who did what, including where the planned split of work did not hold (section 1).
+### T7. Framing canvas and workflow diagram (≈45 min)
 
-## 12. Proposed repository structure
+**`reports/problem_framing_canvas.md`**, a one-page table with:
+- Stakeholder: hotel revenue manager
+- Decision need: whom to contact / how much to overbook
+- Primary lens: cancellation risk
+- Secondary lens: none, and why (segmentation would not strengthen the contact decision; the
+  subgroup check covers operational differences)
+- Unit of analysis: a booking at creation time
+- Task: binary classification, calibrated probability + flag
+- Output
+- Success metric: AP for ranking, expected € saving for the decision
+- Constraints: booking-time inputs only, no leakage, interpretability
+- Data, risks and ethical notes
 
-```text
-data/
-  raw/            # hotel_bookings.csv (untracked) + SOURCE.md fingerprint
-  processed/      # hotel_bookings_clean.csv (untracked, rebuilt by notebook 01)
-notebooks/
-  01_eda_and_cleaning.ipynb      # DONE - understanding, EDA, quality, leakage, cleaning, features
-  02_pipeline_and_split.ipynb    # NEXT - split, ColumnTransformer, CV folds, metric harness
-  03_*.ipynb                     # one per model, all on the frozen foundation
-reports/
-  data_dictionary.csv            # generated by notebook 01
-  feature_roles.csv              # the frozen feature contract notebook 02 reads
-  eda_insight_log.md             # generated by notebook 01
-Docs/             # provided assignment documents
-knowledge/        # project knowledge/index files
-plan.md
-requirements.txt
-```
+**`reports/workflow_diagram.md`**, a Mermaid flowchart:
+- business problem → data source and fingerprint → EDA → cleaning (duplicates, errors) → leakage
+  exclusions → group-aware split (test locked) → nested CV of 6 models → reference selection (rule 9.1)
+  → ensemble test → calibration + cost threshold → subgroup check → freeze → single test pass →
+  recommendation
+- Mark the decision points and link each to its decision-log section.
+- Export a PNG to `reports/figures/workflow.png` (mermaid.live or `mmdc`) for the report and video.
 
-## 13. Three-week timeline
+### T8. Fix the logs, and write the recommendation, limitations and AI-use (≈1 h)
 
-The original seven-week plan was compressed on **2026-09-03** to the three weeks actually available.
-Dates below assume a final deadline of **2026-09-24** and must be confirmed against the module handbook.
+1. **Decision log.** The "17 September 2026" section contradicts the real contract. It says 118,565
+   rows, 20 predictors, duplicates preserved, and ADR excluded; the real contract is 84,969 rows,
+   25 predictors, duplicates removed, and ADR kept.
+   - Mark that section as **superseded** (a draft that was not adopted).
+   - Add a correct "17 September — v1 foundation" section summarised from `project_record.md` §2–§6,
+     with the measured numbers.
+2. **`reports/training_foundation.md`:** make sure it only describes files that exist.
+3. **`reports/recommendation_and_limitations.md`**, filled with the T3–T5 numbers:
+   - **Recommendation:** use the frozen rule to rank new bookings daily and contact the flagged ones.
+     Give the expected saving per 1,000 bookings, the % contacted, and the precision (how many
+     contacts are wasted).
+   - Subgroup caveats from T4.
+   - Retraining trigger: quarterly, or when the monthly cancel rate drifts by more than 5 points.
+   - **Not for automatic cancellation or price discrimination.** A human stays in the loop.
+   - **Limitations:**
+     - retrospective data only (two Portuguese hotels, 2015–2017, pre-2020)
+     - no temporal validation
+     - the CSV is not a verified booking-time snapshot
+     - the unique-profile population (duplicates)
+     - the cost values are assumptions
+     - `country` as an input raises a fairness question
+     - the test population was seen during EDA (no labels were used for model choices)
+   - Stakeholder value: what the manager gains, and what they must not over-read.
+4. **`reports/ai_use_declaration.md`:** the tools used (Claude Code, Codex via DevTeam), what they did
+   (drafted code and text, reviews, ran scripts), and what humans decided and checked. Say that all
+   numbers come from the notebooks, not from AI output. Follow the course rules.
 
-### Status at 2026-09-03
+### T9. Clean reproducibility run (≈1 h, mostly waiting)
 
-| Stage | State | Artefact |
-| --- | --- | --- |
-| Problem framing, track, lens, target | done | sections 2-3 |
-| Data acquisition, licence and SHA-256 fingerprint | done | `data/raw/SOURCE.md` |
-| Data dictionary with a role for all 32 columns | done | `reports/data_dictionary.csv` |
-| EDA: 16 charts, each with a written reading, plus a ranked driver table | done | `notebooks/01_eda_and_cleaning.ipynb` section 8 |
-| Data quality: missing, duplicates, impossible rows, outliers | done | insight log, findings 1-9 |
-| Leakage analysis and exclusion list | done | insight log, findings L1-L4; section 5 |
-| Cleaning and feature engineering (36 model features) | done | `data/processed/hotel_bookings_clean.csv` |
-| Frozen feature contract | done | `reports/feature_roles.csv` |
-| Split, pipeline, CV folds, metric harness, imbalance handling | **next** | `notebooks/02_pipeline_and_split.ipynb` |
-| Four models tuned inside the shared folds | not started | `notebooks/03_*.ipynb` |
-| Comparison, threshold selection, single held-out test pass | not started | - |
-| Recommendation, limitations, report, video | not started | - |
+1. Create a fresh venv: `python -m venv .venv-check`, then `pip install -r requirements.txt`.
+2. Execute in order with `jupyter nbconvert --to notebook --execute --inplace`:
+   - `01_eda_cleaning`
+   - `v2/02` → `v2/03` → `v2/04` … `v2/14`
+   - RF (`v2/07`) takes about 30 min, so run it in the background.
+3. Check:
+   - the manifest hashes are identical
+   - `git diff --stat reports/results/v2/` shows no metric changes beyond float noise
+   - `final_test.csv` is identical
+4. Record the result, Python version and machine in `reports/reproducibility.md`, including the
+   dataset link and fingerprint.
+5. Final commit for today: `Models, evaluation and supporting documents complete`.
+- **Done when:** a clean run reproduces every saved number.
 
-### Week 1 - 2026-09-03 to 2026-09-10 - lead, alone
+### Today's checklist
 
-| # | Task | State |
-| --- | --- | --- |
-| 1.1 | Notebook 01: data understanding, EDA, quality, leakage, cleaning, feature engineering, frozen contract | done 2026-09-03 |
-| 1.2 | Notebook 02: stratified train/test split, held out before any model selection, `random_state=42` | to do |
-| 1.3 | Notebook 02: one `ColumnTransformer` - scaling for the numeric block, one-hot for the low-cardinality categoricals, a leakage-safe encoder for `country` (178 levels) and `agent` (334 levels), all fitted **inside** the folds | to do |
-| 1.4 | Notebook 02: frozen stratified k-fold definition, shared by every model | to do |
-| 1.5 | Notebook 02: class-imbalance handling - stratification, `class_weight='balanced'`, threshold tuning on CV; **no SMOTE**, because 27.3% positive is mild | to do |
-| 1.6 | Notebook 02: metric harness - PR-AUC, F1 and recall on the cancelled class as primary; ROC-AUC, precision, accuracy, confusion matrix and calibration as secondary | to do |
-| 1.7 | Hand the frozen foundation to M2-M4 with a one-page "how to add your model" note | to do |
-
-### Week 2 - 2026-09-11 to 2026-09-17 - parallel where possible
-
-| # | Task | Owner |
-| --- | --- | --- |
-| 2.1 | Logistic Regression: tuned in-fold, coefficients read as evidence | M1 |
-| 2.2 | Decision Tree: tuned in-fold, pruning justified | M2 |
-| 2.3 | Random Forest: tuned in-fold, feature importances | M3 |
-| 2.4 | Gradient Boosting (XGBoost): tuned in-fold | M4 |
-| 2.5 | Per model: CV scores, confusion matrix, calibration curve, feature-importance or coefficient evidence, short error analysis | each owner |
-| 2.6 | Assemble the combined comparison table | M1 |
-| 2.7 | Contingency check: any model not delivered by 2026-09-17 is run by the lead | M1 |
-
-### Week 3 - 2026-09-18 to 2026-09-24 - team
-
-| # | Task |
-| --- | --- |
-| 3.1 | Choose the recommended model on predictive quality, calibration, interpretability, training cost and stakeholder usefulness - not on accuracy alone |
-| 3.2 | Select the operating threshold from CV, document the business trade-off, then take **one** scored pass on the held-out test set |
-| 3.3 | Recommendation, limitations, and the fairness note on `previous_cancellations` |
-| 3.4 | Optional: the clearly labelled post-booking sensitivity analysis (what the excluded columns would have added) |
-| 3.5 | Report assembly, decision log, AI-use declaration, reference acknowledgement (section 16) |
-| 3.6 | Reproducibility check: clean clone, `pip install -r requirements.txt`, run the notebooks in order, confirm the numbers match |
-| 3.7 | Record the three-minute YouTube demonstration and submit |
-
-### Cut list if time runs short
-
-Drop in this order, and state in the report what was dropped and why:
-
-1. The optional k-NN model.
-2. The post-booking sensitivity analysis (task 3.4).
-3. Calibration curves for the models that were not selected.
-
-**Never cut:** the single held-out test pass, the leakage controls, and the reproducibility re-run. Those three are what separate a defensible result from a number nobody can trust.
-
-## 14. Deliverables checklist mapped to rubric
-
-| Rubric criterion | Marks | Evidence planned |
-| --- | ---: | --- |
-| Problem framing and lens/task | 5 | Canvas, primary lens, target/output and stakeholder rationale |
-| Workflow diagram and decision log | 10 | Mermaid workflow and dated decision log |
-| Data understanding, EDA and quality | 10 | Dictionary, EDA insight log and quality findings |
-| Preprocessing and feature engineering | 15 | Pipeline, feature log and leakage controls |
-| Model strategy and comparison | 20 | Baseline plus at least three justified alternatives, one owned by each member, all trained on the frozen shared foundation |
-| Evaluation and critical judgement | 20 | Stratified validation, PR-AUC/F1/recall, calibration and error analysis |
-| Recommendation, limitations and value | 10 | Actionable, evidence-based recommendation and limitations |
-| Reproducibility, documentation and AI-use | 10 | Runnable notebook, fingerprint, requirements and honest declaration |
-
-## 15. Open questions for the team or lecturer
-
-1. Confirm the group-number-to-code mapping and Guided Track allocation with the lecturer.
-2. Confirm the authoritative dataset source/URL and citation format.
-3. Decide whether City Hotel and Resort Hotel are modelled jointly (with `hotel` as a feature) or separately after EDA; joint modelling is the initial default.
-4. Confirm member names, and confirm that M2-M4 accept sole ownership of one model each (section 1). The shared foundation is no longer shared work; the contribution statement must reflect that.
-5. Confirm the actual submission deadline. Section 13 assumes 2026-09-24.
-6. Confirm which prediction time is expected by the stakeholder, since that governs the borderline operational features.
-
-## 16. Reference notebooks consulted
-
-Five published Kaggle notebooks analysing the same Hotel Booking Demand dataset were read on
-**2026-09-03**, before notebook 01 was written, and used as a structural benchmark: they establish what a
-competent EDA on this dataset looks like, which columns other analysts keep or drop, and which engineered
-features are conventional. They are listed here for transparency, and because several of our decisions are
-**deliberate departures** from them.
-
-| Ref | Notebook | Author | What we adopted |
+| # | Task | Output | Status |
 | --- | --- | --- | --- |
-| R1 | [Hotel Booking Cancellation Prediction \| EDA + 6 ML](https://www.kaggle.com/code/dalileholadzadeh/hotel-booking-cancellation-prediction-eda-6-ml) | Dalileh Oladzadeh | The `value_counts()` sweep across every categorical, `describe().T`, duplicate removal, and the IQR outlier check on `lead_time` |
-| R2 | [Hotel Cancellation Prediction using ANN](https://www.kaggle.com/code/aamir5659/hotel-cancellation-prediction-using-ann) | Aamir | Zero-guest row removal, one justified rule per missing-value column, and frequency encoding as the treatment for high-cardinality `country` |
-| R3 | [HotelBookingCancellationAnalysis-V1](https://www.kaggle.com/code/kushal1147/hotelbookingcancellationanalysis-v1) | Kushal | The written data dictionary, cardinality-driven encoding planning, and most of the engineered feature list |
-| R4 | [Hotel Booking](https://www.kaggle.com/code/hazemalanany/hotel-booking) | Hazem Alanany | The chart set: cancellation pie, ordered-month countplot, top-10 origin countries, ADR-by-month per hotel, KDE of lead time by class, special-requests-versus-rate |
-| R5 | [Hotel Booking Cancellation Analysis \| Python](https://www.kaggle.com/code/ahmedbaqa/hotel-booking-cancellation-analysis-python) | Ahmed Baqa | The `head`/`shape`/`info`/`describe`/`isna` opening sequence, percentage labels on every bar, lead-time bands with a rate per band, and the derived `has_previous_cancellation` flag |
+| T1 | Commit state | clean git | ☐ |
+| T2 | Ensemble | `v2/11`, `ensemble.csv` | ☐ |
+| T3 | Calibration + cost threshold | `v2/12`, `threshold.json` | ☐ |
+| T4 | Subgroups | `v2/13`, `subgroups.csv` | ☐ |
+| T5 | Freeze + test pass | `frozen_model.json`, `v2/14`, `final_test.csv`, figures | ☐ |
+| T6 | Data dictionary | `data_dictionary.csv/.md` | ☐ |
+| T7 | Canvas + workflow | `problem_framing_canvas.md`, `workflow_diagram.md`, `workflow.png` | ☐ |
+| T8 | Logs, recommendation, AI use | `decision_log.md`, `recommendation_and_limitations.md`, `ai_use_declaration.md` | ☐ |
+| T9 | Clean rerun | `reproducibility.md` | ☐ |
 
-### Where we deliberately differ
+**Parallel work if two agents run:** T6 and T7 do not depend on T2–T5 and can run alongside them.
+T8's recommendation needs T5. T9 runs last.
 
-| # | What they do | What we do instead | Why |
-| --- | --- | --- | --- |
-| D1 | R1, R3 and R2 fill missing `country` with the mode, `PRT` | Explicit `Unknown` category | Portugal is already 40.7% of the raw data and the highest-cancelling country at 56.6%; mode-filling inflates the single strongest country signal |
-| D2 | R1 drops `agent` and `company` outright; R3 drops `company` | `booked_with_agent` and `booked_by_company` flags, and `agent` kept as an explicit category | Missing there *means* "no agent / no company" - that is information, not absence |
-| D3 | R2 and R3 cut the top 0.1% of `adr` (about 87 rows) | Remove only the two rows we can show are errors (`adr = -6.38`, and `adr = 5400` against a next-highest 510) | Blanket quantile trimming deletes real bookings; only demonstrable errors are removed |
-| D4 | All five use `required_car_parking_spaces`, and R2/R3 also use `room_changed`, as model features | Both excluded as **post-booking** | 7,416 parking requests, zero ever cancelled; a room is only re-assigned to a guest who arrived. Both are populated at check-in, after the cancellation decision |
-| D5 | All five encode, scale and split in the same notebook as the EDA | Encoding, scaling and imputation are deferred to notebook 02 and fitted **inside** the CV folds | Fitting them on the full dataset leaks the test set into the training statistics and inflates every reported score |
-| D6 | R5 builds a `high_risk_profile` rule that is 100% cancelled over 2,405 rows | Not used | It is a hand-built interaction, not a finding; the tree models discover it on their own, and presenting it as a result would overstate what the data shows |
-| D7 | R2 drops `arrival_date_day_of_month` as noise | Kept | It costs one column, and the trees can ignore it; dropping it without evidence is an unjustified decision |
+---
 
-### Acknowledgement of influence
+## D. Tomorrow (29 September) — not today
 
-No cells were copied verbatim from these notebooks. Several **engineered-feature definitions and names**
-follow R2 and R3 directly - `total_nights`, `total_guests`, `is_family`, `room_changed`,
-`total_previous_bookings`, `prev_cancel_ratio`, `long_lead_time` - and the lead-time band edges follow R5
-so that our rates in section 8.2 of notebook 01 are directly comparable to a published result. These are
-acknowledged here rather than presented as original work.
-
-R1 also supplies a useful negative result that we cite as evidence in the report: its Random Forest scores
-**72.8% accuracy while recalling 57 of 4,805 cancellations (recall 0.012)**. That is a model which looks
-respectable on an accuracy column and is worthless to a revenue manager, and it is the concrete
-justification for our metric choice in section 8 and our class-imbalance handling in section 6.
+1. **Final report**, structured by the rubric sections:
+   - framing (5)
+   - workflow and decision log (10)
+   - EDA and data quality (10)
+   - preprocessing (15)
+   - model comparison (20)
+   - evaluation (20)
+   - recommendation (10)
+   - reproducibility and AI use (10)
+   Every number cites its CSV.
+2. **3-minute YouTube demo:** script, then slides/figures from `reports/figures/`, then recording.
+3. **One A4 Personal Learning Journey report per member.** Each member writes their own; prepare a
+   template only.
+4. Submission package: report, notebooks and code, dataset link and fingerprint, data dictionary,
+   decision logs, model comparison.
+5. Confirm member names and contributions (`project_record.md` §11).

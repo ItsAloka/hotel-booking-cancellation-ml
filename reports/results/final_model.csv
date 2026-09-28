@@ -1,0 +1,2 @@
+model,nested_cv_pr_auc_mean,nested_cv_pr_auc_std,threshold,test_pr_auc,test_roc_auc,test_f1,test_recall,test_precision,test_accuracy,best_params
+XGBoost,0.7612,0.009,0.3352,0.7698,0.8924,0.7019,0.7692,0.6454,0.8187,"{""model__n_estimators"": ""600"", ""model__max_depth"": ""10"", ""model__learning_rate"": ""0.05""}"
