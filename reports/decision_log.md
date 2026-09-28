@@ -62,3 +62,17 @@ Notebooks: `notebooks/v2/04_dummy_baseline` … `09_neural_network`, `10_model_s
 | **Reference model: XGBoost**, AP 0.7644 ± 0.0080 | Random Forest 0.7552 ± 0.0082 (tie-break to simpler) | Rule 9.1 walked LR → DT → RF → XGB → NN. XGB beat RF by +0.0092 against a 0.0082 bar, 5/5 folds; about 30× faster to refit and higher F1 at 0.5 (0.674 vs 0.631). NN was −0.0207, 0/5 | The margin over RF is barely above the bar; §9.6 should treat RF as the natural ensemble partner, not as beaten decisively |
 
 Other results (AP mean ± SD): Dummy 0.2775, Logistic Regression 0.6410 ± 0.0091, Decision Tree 0.7067 ± 0.0069, Neural Network 0.7437 ± 0.0101. `test.csv` was not opened by any notebook.
+
+## 28 September 2026 — T2 ensemble
+
+Notebook: `notebooks/v2/11_ensemble.ipynb`. Outputs: `reports/results/v2/ensemble.csv` (option × outer fold, then mean and SD rows, ddof=1; XGBoost included as the paired reference) and `reports/results/v2/oof/ensemble_e1_average.csv`, `ensemble_e2_weighted.csv`, `ensemble_e3_stacking.csv`. Built only from the saved OOF files of XGBoost, Random Forest, Neural Network and Decision Tree; no model was refit.
+
+| Decision | Alternatives considered | Evidence / reason | Limitation |
+| --- | --- | --- | --- |
+| **XGBoost stays the final model** | E1 average of XGB and RF; E2 weighted average; E3 stacking | Rule 9.1 bar = 0.0080 (XGBoost fold SD) and ≥ 4/5 folds. E1: AP 0.7693 ± 0.0081, paired gain +0.0049, 5/5 folds → fails. E2: 0.7692 ± 0.0080, +0.0048, 5/5 → fails. A blend would also add RF's ~191 s refit to XGBoost's ~6 s and be harder to explain | The ensembles are better in every fold; the gain is consistent in sign but about 60% of the noise bar, so it is not claimed |
+| Diagnose before blending | Blend blindly | Residual correlation (`is_canceled − proba`) 0.94 for XGB–RF and XGB–NN; probability correlation 0.93 / 0.92; the models disagree on the 0.5 flag for 7.2% / 7.7% of bookings. Little complementary signal, so only a small gain was expected | Pearson correlation on all OOF rows pooled |
+| E2 weight `w ∈ {0.3,…,0.7}` chosen by pooled AP on the other 4 folds (cross-fitted, rule B3) | Choose `w` on all folds | Chosen `w` = 0.5, 0.6, 0.6, 0.5, 0.5 for folds 0–4; the AP curve over `w` is flat (≤ 0.0002 between 0.5 and 0.6), so E2 ≈ E1 | Grid of five weights only |
+| E3 stacking (logistic regression on logit p of XGB, RF, NN, DT, fitted on the other 4 folds) reported as **exploratory only, not adoptable** | Adopt it if it passes | The other folds' OOF values came from base models trained on fold k's rows, so fold k's labels reach the meta-model indirectly. Even with that help: +0.0062, 5/5 → fails. Coefficients ≈ 0.48 XGB, 0.46 RF, 0.15 NN, 0.02 DT | Removing the leak would need base models refitted without fold k; not done |
+| Precision / recall / F1 at 0.5 reported, not used to decide | Decide on F1 | E1 trades recall for precision (0.748 / 0.598 vs XGBoost 0.727 / 0.628; F1 0.665 vs 0.674) because averaging with RF pulls probabilities towards the middle. The threshold is chosen on cost in T3 | Untuned threshold |
+
+Further evidence of an information ceiling in the 25 booking-time predictors: four model families make largely the same mistakes. `test.csv` was not opened; only the label column of `train.csv` and `cv_folds.csv` were read, after their manifest hashes were checked.
