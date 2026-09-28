@@ -1,0 +1,65 @@
+{
+  "task": "T3",
+  "notebook": "notebooks/v2/12_calibration_threshold.ipynb",
+  "model": "xgboost",
+  "oof_source": "reports/results/v2/oof/xgboost.csv",
+  "calibrator": "none",
+  "calibrator_fit_for_final_model": "none",
+  "rule": "R1",
+  "rule_definition": "flag if p >= threshold",
+  "threshold": 0.05,
+  "threshold_grid": [
+    0.05,
+    0.95,
+    0.01
+  ],
+  "threshold_cross_fitted_per_fold": [
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05
+  ],
+  "cost_assumptions": {
+    "is_assumption": true,
+    "c_eur_per_flag": 5.0,
+    "r_recovered_fraction": 0.25,
+    "value_at_stake": "V = adr * total_nights, floored at 0 (day-use V = 0)",
+    "saving_if_flagged": "r * V * y - c",
+    "saving_if_not_flagged": 0
+  },
+  "cross_fitted_base_case": {
+    "saving_per_1000_mean": 29600.634618240972,
+    "saving_per_1000_sd": 825.7156853421272,
+    "pct_flagged_mean": 63.48456329006973,
+    "precision_mean": 0.42523513234368593,
+    "recall_mean": 0.9729586426299045,
+    "f1_mean": 0.591814131191768
+  },
+  "stop_go": {
+    "calibration": {
+      "isotonic": {
+        "mean d_k": 0.00017204275175839446,
+        "bar (SD of raw Brier)": 0.0020098830177402538,
+        "folds with d_k > 0": 4.0,
+        "passes": false
+      },
+      "platt": {
+        "mean d_k": 0.000267679258920267,
+        "bar (SD of raw Brier)": 0.0020098830177402538,
+        "folds with d_k > 0": 5.0,
+        "passes": false
+      }
+    },
+    "r2_vs_r1": {
+      "mean g_k": 251.91008766929517,
+      "bar (SD of reference)": 825.7156853421272,
+      "folds with g_k > 0": 5.0,
+      "passes": false
+    }
+  },
+  "brier_raw_pooled": 0.11755848928833489,
+  "sensitivity_cells_flag_nothing_best": 0,
+  "sensitivity_cells_with_r2": 3,
+  "test_csv_read": false
+}
