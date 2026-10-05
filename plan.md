@@ -106,7 +106,7 @@ that the group reviewed and accepted every decision. Base it on `project_record.
 | --- | --- | --- | --- | --- |
 | 6 | **Final report** | All (one editor) | Report built from the Part 1 documents + notebooks | ☐ |
 | 7 | **Viva preparation** | Each member | Can explain their own notebook in simple words | ☐ |
-| 8 | **3-minute YouTube demo video** | All | Unlisted YouTube link in the report | ☐ |
+| 8 | **YouTube demo video** | All | https://youtu.be/YvchCv3uiBs (in the report) | ☑ |
 | 9 | **Personal Learning Journey report** | Each member, individually | One A4 page each | ☐ |
 
 ### 6. Final report
