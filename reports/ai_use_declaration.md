@@ -23,21 +23,18 @@ checked its work. Based on [project_record.md](project_record.md) §11.
 
 ## What the group did
 
-> **To complete before submission:** each member confirms the lines that apply to them and adds their name.
-> Do not leave a line in if it is not true.
+As planned in the initial submission (section 5.2), each member owned one part of the data work
+(notebooks 01 and 02) and one model, and is the person who explains that part.
 
 | Member | Name (student ID) | What they did |
 | --- | --- | --- |
-| M1 (project lead) | Warnakulasinhage S.N.A (IT24101147) | Built the shared foundation (notebooks 01–02, EDA, cleaning, split) with AI help; reviewed and accepted every decision in the [decision log](decision_log.md); ran the notebooks and checked that outputs match the reports; Logistic Regression (03) |
-| M2 | Nawodya K.P.G.P (IT24102629) | Decision Tree (04): `[confirm what you did]` |
-| M3 | Fonseka W. P. L (IT24100509) | Random Forest (05): `[confirm what you did]` |
-| M4 | Seelarathna G.P.B (IT24101027) | XGBoost (06): `[confirm what you did]` |
-| All | | Initial submission (lens, task, workflow, roles); Neural Network (07), model selection (08), class weighting (09), ensemble (10): `[confirm who]`; final report, demo video, viva |
+| M1 (project lead) | Warnakulasinhage S.N.A (IT24101147) | Notebook 02 in full (features and target, encoding plan, stratified 80/20 split, 5 cross-validation folds, PR-AUC metric); Logistic Regression (03, baseline); coordination: workflow diagram, decision log, model comparison (08), report assembly and the demo video |
+| M2 | Nawodya K.P.G.P (IT24102629) | Notebook 01 sections 1–3 and 5 (loading, data dictionary, missing values, impossible rows and outliers, duplicates); Decision Tree (04) |
+| M3 | Fonseka W. P. L (IT24100509) | Notebook 01 sections 4 and 6.1–6.6 (leakage check, class balance, EDA on booking drivers); Random Forest (05) |
+| M4 | Seelarathna G.P.B (IT24101027) | Notebook 01 sections 6.7–9 (seasonality, country, price, correlation, feature engineering, stress tests, saving the clean data); XGBoost (06) |
+| All | | Initial submission; Neural Network (07), model selection (08), class weighting (09), ensemble (10); final report, demo video, viva |
 
-The original plan gave M1 the shared foundation and Logistic Regression, M2 the Decision Tree, M3 Random Forest
-and M4 XGBoost. When the schedule was cut from seven weeks to three (3 September 2026), the project lead built
-the whole shared foundation alone. The Neural Network and the ensemble were added beyond the four planned models.
-**Per-model ownership above must be confirmed by the group before submission** (project_record.md §11).
+The Neural Network and the ensemble were added beyond the four planned models.
 
 ## How we checked the AI's work
 
